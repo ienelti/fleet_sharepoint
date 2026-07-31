@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_fleet_sharepoint_document_user,fleet.sharepoint.document.user,model_fleet_sharepoint_document,fleet.group_fleet_user,1,1,1,1
+access_fleet_sharepoint_document_user,fleet.sharepoint.document.user,model_fleet_sharepoint_document,fleet.fleet_group_user,1,1,1,1

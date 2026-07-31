@@ -4,9 +4,9 @@
     'category': 'Human Resources/Fleet',
     'summary': 'Integra los documentos de vehículos directamente en Microsoft SharePoint',
     'description': """
-        Almacena documentos de flota en Microsoft SharePoint usando Microsoft Graph API.
+        Almacena documentos de flota en SharePoint usando Microsoft Graph API.
     """,
-    'author': 'JP/IENEL',
+    'author': 'IENEL',
     'depends': ['base', 'fleet'],
     'data': [
         'security/ir.model.access.csv',
