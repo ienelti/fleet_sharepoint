@@ -25,12 +25,13 @@
         </field>
     </record>
 
-    <!-- 2. Vista Lista (Tree) para el Documento (Independiente) -->
-    <record id="view_fleet_sharepoint_document_tree" model="ir.ui.view">
-        <field name="name">fleet.sharepoint.document.tree</field>
+    <!-- 2. Vista Lista para el Documento -->
+    <record id="view_fleet_sharepoint_document_list" model="ir.ui.view">
+        <field name="name">fleet.sharepoint.document.list</field>
         <field name="model">fleet.sharepoint.document</field>
         <field name="arch" type="xml">
-            <tree string="Documentos">
+            <!-- AQUÍ ESTÁ EL CAMBIO CLAVE -->
+            <list string="Documentos">
                 <field name="name"/>
                 <field name="filename" invisible="True"/>
                 <field name="mimetype" invisible="True"/>
@@ -39,7 +40,7 @@
                         string="Ver Documento" 
                         icon="fa-eye" 
                         class="btn-primary"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -51,7 +52,7 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
                 <page string="Documentos SharePoint" name="sharepoint_documents">
-                    <!-- Al llamar al campo así de limpio, Odoo usa automáticamente las vistas 1 y 2 que creamos arriba -->
+                    <!-- Odoo usará automáticamente las vistas form y list declaradas arriba -->
                     <field name="sharepoint_document_ids"/>
                 </page>
             </xpath>
