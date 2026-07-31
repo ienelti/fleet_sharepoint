@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Heredamos el formulario principal del vehículo -->
+    <record id="view_fleet_vehicle_form_inherit_sharepoint" model="ir.ui.view">
+        <field name="name">fleet.vehicle.form.inherit.sharepoint</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Buscamos el notebook (donde están todas las pestañas) y agregamos una nueva al final -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Documentos SharePoint" name="sharepoint_documents">
+                    
+                    <!-- Llamamos a nuestro campo One2many -->
+                    <field name="sharepoint_document_ids">
+                        
+                        <!-- Vista de Lista (Tree) dentro de la pestaña -->
+                        <tree string="Documentos">
+                            <field name="name"/>
+                            <field name="filename" invisible="1"/>
+                            <field name="mimetype" invisible="1"/>
+                            
+                            <!-- Botón para ver el documento. Llama a la función action_view_document -->
+                            <button name="action_view_document" 
+                                    type="object" 
+                                    string="Ver Documento" 
+                                    icon="fa-eye" 
+                                    class="btn-primary"/>
+                        </tree>
+                        
+                        <!-- Vista de Formulario (Emergente al crear un nuevo documento) -->
+                        <form string="Subir Documento">
+                            <sheet>
+                                <group>
+                                    <group>
+                                        <field name="name" placeholder="Ej. Tarjeta de Propiedad"/>
+                                        <field name="filename" invisible="1"/>
+                                        <field name="upload_file" filename="filename" widget="binary"/>
+                                    </group>
+                                    <group>
+                                        <field name="sp_item_id" invisible="0" readonly="1" groups="base.group_no_one"/>
+                                        <!-- sp_item_id es visible solo en modo desarrollador para depuración -->
+                                    </group>
+                                </group>
+                            </sheet>
+                        </form>
+                        
+                    </field>
+                </page>
+            </xpath>
+            
+        </field>
+    </record>
+</odoo>

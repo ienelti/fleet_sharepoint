@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Heredamos la vista de configuración nativa de Flotas -->
+    <record id="res_config_settings_view_form_inherit_sharepoint" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sharepoint</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="fleet.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- A partir de Odoo 17+, las configuraciones se agrupan en etiquetas <app> y <block>. 
+                 Buscamos la app de 'fleet' y agregamos nuestro bloque dentro -->
+            <xpath expr="//app[@name='fleet']" position="inside">
+                
+                <block title="Integración con SharePoint" name="sharepoint_settings">
+                    <setting id="sharepoint_tenant_setting" string="Tenant ID" help="ID del Tenant de Microsoft 365">
+                        <field name="sharepoint_tenant_id"/>
+                    </setting>
+                    
+                    <setting id="sharepoint_client_setting" string="Client ID" help="ID de la aplicación en Azure">
+                        <field name="sharepoint_client_id"/>
+                    </setting>
+                    
+                    <setting id="sharepoint_secret_setting" string="Client Secret" help="Valor del secreto generado en Azure">
+                        <field name="sharepoint_client_secret" password="True"/>
+                    </setting>
+                    
+                    <setting id="sharepoint_drive_setting" string="Drive ID" help="Identificador del Drive principal de SharePoint">
+                        <field name="sharepoint_drive_id"/>
+                    </setting>
+                </block>
+                
+            </xpath>
+            
+        </field>
+    </record>
+</odoo>
