@@ -59,9 +59,10 @@ class FleetSharepointDocument(models.Model):
         # Limpiamos caracteres extraños en el nombre del archivo
         clean_filename = filename.replace(" ", "_")
 
-        # Endpoint de Graph API para subir archivos simples (< 4MB)
-        # Ruta en SharePoint: /Flota/{folder_name}/{clean_filename}
-        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/Flota/{folder_name}/{clean_filename}:/content"
+        # Definimos tu ruta profunda dentro del Drive "IENEL - Documentos"
+        base_path = "/08 TI/04 Desarrollos/04 Odoo/Odoo19/Creacion de modulos/fleet_sharepoint/documentos_odoo"
+        # Endpoint de Graph API actualizado
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:{base_path}/{folder_name}/{clean_filename}:/content"
 
         headers = {
             'Authorization': f'Bearer {access_token}',
