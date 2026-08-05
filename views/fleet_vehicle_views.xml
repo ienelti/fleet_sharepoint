@@ -60,13 +60,13 @@
         <field name="binding_model_id" ref="model_fleet_sharepoint_document"/>
         <field name="binding_view_types">list</field>
         <field name="state">code</field>
-        <field name="code">
-            # Redirigimos al controlador pasando los IDs seleccionados
+        <field name="code"><![CDATA[
             action = {
                 'type': 'ir.actions.act_url',
                 'url': '/sharepoint/download_zip?ids=%s' % ','.join(map(str, records.ids)),
                 'target': 'self',
             }
+            ]]>
         </field>
     </record>
 
