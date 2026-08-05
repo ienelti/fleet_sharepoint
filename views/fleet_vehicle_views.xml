@@ -70,7 +70,7 @@
         </field>
     </record>
 
-    <!-- 4. Heredamos la Ficha del Vehículo para insertar el Smart Button y mantener la Pestaña -->
+    <!-- 4. Heredamos la Ficha del Vehículo para insertar el Smart Button -->
     <record id="view_fleet_vehicle_form_inherit_sharepoint" model="ir.ui.view">
         <field name="name">fleet.vehicle.form.inherit.sharepoint</field>
         <field name="model">fleet.vehicle</field>
@@ -83,15 +83,8 @@
                         type="action" 
                         class="oe_stat_button" 
                         icon="fa-folder-open">
-                    <field name="sharepoint_doc_count" widget="statinfo" string="Documentos SP"/>
+                    <field name="sharepoint_doc_count" widget="statinfo" string="Documentos SharePoint"/>
                 </button>
-            </xpath>
-
-            <!-- Pestaña dentro del formulario del vehículo -->
-            <xpath expr="//notebook" position="inside">
-                <page string="Documentos SharePoint" name="sharepoint_documents">
-                    <field name="sharepoint_document_ids"/>
-                </page>
             </xpath>
         </field>
     </record>
