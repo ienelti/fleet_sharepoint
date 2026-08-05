@@ -45,3 +45,27 @@ class SharepointController(http.Controller):
         ]
 
         return request.make_response(response.content, headers=headers_http)
+
+    @http.route('/sharepoint/download/<int:doc_id>', type='http', auth='user', website=False)
+    def download_attachment_sharepoint(self, doc_id, **kwargs):
+        doc = request.env['fleet.sharepoint.document'].sudo().browse(doc_id)
+        if not doc.exists() or not doc.sp_item_id:
+            return request.not_found()
+
+        tenant_id, client_id, client_secret, drive_id = doc._get_sharepoint_credentials()
+        access_token = doc._get_access_token(tenant_id, client_id, client_secret)
+
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/items/{doc.sp_item_id}/content"
+        headers = {'Authorization': f'Bearer {access_token}'}
+        response = requests.get(url, headers=headers, timeout=30)
+
+        content_type = doc.mimetype or 'application/octet-stream'
+        filename = doc.filename or f"{doc.name}.pdf"
+
+        headers_http = [
+            ('Content-Type', content_type),
+            # 'attachment' fuerza la descarga en la computadora del usuario
+            ('Content-Disposition', f'attachment; filename="{filename}"'),
+            ('Content-Length', str(len(response.content)))
+        ]
+        return request.make_response(response.content, headers=headers_http)

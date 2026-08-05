@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Visor de documentos -->
     <record id="view_fleet_sharepoint_viewer_wizard_form" model="ir.ui.view">
         <field name="name">fleet.sharepoint.viewer.wizard.form</field>
         <field name="model">fleet.sharepoint.viewer.wizard</field>
@@ -9,6 +10,28 @@
                 <field name="viewer_html" nolabel="1" readonly="1" options="{'safe': True}"/>
                 
                 <!-- Pie de página del modal con botón para cerrar -->
+                <footer>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de compartir -->
+    <record id="view_sharepoint_share_wizard_form" model="ir.ui.view">
+        <field name="name">sharepoint.share.wizard.form</field>
+        <field name="model">fleet.sharepoint.share.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Compartir Documento">
+                <sheet>
+                    <p class="text-muted">
+                        Copia este enlace. Cualquier persona con acceso a este link podrá ver el documento en solo lectura sin necesidad de iniciar sesión.
+                    </p>
+                    <group>
+                        <!-- widget="CopyClipboardChar" crea el botón de copiado nativo de Odoo -->
+                        <field name="share_url" widget="CopyClipboardChar" nolabel="1"/>
+                    </group>
+                </sheet>
                 <footer>
                     <button string="Cerrar" class="btn-secondary" special="cancel"/>
                 </footer>

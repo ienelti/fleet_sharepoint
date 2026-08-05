@@ -141,3 +141,94 @@ class FleetSharepointDocument(models.Model):
             'view_mode': 'form',
             'target': 'new',
         }
+
+    def action_download_document(self):
+        """ Descarga física del archivo """
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            # Apuntamos a una nueva ruta de descarga en el controlador
+            'url': f'/sharepoint/download/{self.id}',
+            'target': 'self', # 'self' hace que inicie la descarga sin abrir pestañas nuevas
+        }
+
+    def action_share_document(self):
+        """ Genera link anónimo de solo lectura en SharePoint """
+        self.ensure_one()
+        tenant_id, client_id, client_secret, drive_id = self._get_sharepoint_credentials()
+        access_token = self._get_access_token(tenant_id, client_id, client_secret)
+        
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/items/{self.sp_item_id}/createLink"
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+        # Parámetros: 'view' (Solo lectura), 'anonymous' (Cualquiera con el link)
+        payload = {"type": "view", "scope": "anonymous"}
+        
+        response = requests.post(url, headers=headers, json=payload, timeout=20)
+        
+        if response.status_code in [200, 201]:
+            link_url = response.json().get('link', {}).get('webUrl')
+            
+            # Abrimos un modal para mostrarle el enlace al usuario
+            wizard = self.env['fleet.sharepoint.share.wizard'].create({'share_url': link_url})
+            return {
+                'name': 'Enlace de Compartición',
+                'type': 'ir.actions.act_window',
+                'res_model': 'fleet.sharepoint.share.wizard',
+                'res_id': wizard.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }
+        else:
+            raise exceptions.UserError(f"No se pudo generar el enlace. SharePoint respondió: {response.text}")
+
+    def write(self, vals):
+        # 1. Guardamos el cambio en Odoo primero
+        res = super(FleetSharepointDocument, self).write(vals)
+        
+        # 2. Si el usuario cambió el campo 'name', le avisamos a SharePoint
+        if 'name' in vals:
+            for doc in self:
+                if doc.sp_item_id:
+                    tenant_id, client_id, client_secret, drive_id = self._get_sharepoint_credentials()
+                    access_token = self._get_access_token(tenant_id, client_id, client_secret)
+                    
+                    # Recuperamos la extensión original para no corromper el archivo
+                    _, ext = os.path.splitext(doc.filename or '.pdf')
+                    if not ext:
+                        ext = '.pdf'
+                    
+                    nuevo_nombre_archivo = f"{doc.name}{ext}".replace(" ", "_").replace("/", "-")
+                    
+                    # Graph API PATCH para renombrar
+                    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/items/{doc.sp_item_id}"
+                    headers = {
+                        'Authorization': f'Bearer {access_token}',
+                        'Content-Type': 'application/json'
+                    }
+                    payload = {"name": nuevo_nombre_archivo}
+                    requests.patch(url, headers=headers, json=payload, timeout=20)
+                    
+                    # Actualizamos también el nombre técnico interno en Odoo
+                    doc.filename = nuevo_nombre_archivo
+        return res
+
+    def unlink(self):
+        # IMPORTANTE: Eliminamos en SharePoint ANTES de borrar el registro en Odoo
+        for doc in self:
+            if doc.sp_item_id:
+                try:
+                    tenant_id, client_id, client_secret, drive_id = self._get_sharepoint_credentials()
+                    access_token = self._get_access_token(tenant_id, client_id, client_secret)
+                    
+                    # Graph API DELETE para eliminar el archivo físicamente
+                    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/items/{doc.sp_item_id}"
+                    headers = {'Authorization': f'Bearer {access_token}'}
+                    requests.delete(url, headers=headers, timeout=20)
+                except Exception as e:
+                    _logger.error("Error al intentar borrar archivo en SharePoint: %s", str(e))
+                    
+        # Luego borramos de la base de datos de Odoo
+        return super(FleetSharepointDocument, self).unlink()

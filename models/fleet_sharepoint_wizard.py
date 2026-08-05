@@ -29,3 +29,9 @@ class FleetSharepointViewerWizard(models.TransientModel):
                 '''
             else:
                 wizard.viewer_html = '<p>No hay documento disponible.</p>'
+
+class FleetSharepointShareWizard(models.TransientModel):
+    _name = 'fleet.sharepoint.share.wizard'
+    _description = 'Wizard para Mostrar Link de Compartición'
+
+    share_url = fields.Char(string="Enlace", readonly=True)
