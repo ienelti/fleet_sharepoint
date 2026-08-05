@@ -120,6 +120,7 @@ class FleetSharepointDocument(models.Model):
                 
                 vals['sp_item_id'] = sp_id
                 vals['mimetype'] = mime
+                vals['filename'] = final_filename
                 vals['upload_file'] = False
                 
         return super(FleetSharepointDocument, self).create(vals_list)
@@ -163,8 +164,8 @@ class FleetSharepointDocument(models.Model):
             'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json'
         }
-        # Parámetros: 'view' (Solo lectura), 'anonymous' (Cualquiera con el link)
-        payload = {"type": "view", "scope": "anonymous"}
+        # Parámetros: 'view' (Solo lectura), 'organization' (Solo personas de la empresa) Cambiar a 'anonymous' si el sitio en SP permite compartir a cualquiera
+        payload = {"type": "view", "scope": "organization"}
         
         response = requests.post(url, headers=headers, json=payload, timeout=20)
         

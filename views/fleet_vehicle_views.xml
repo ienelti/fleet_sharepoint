@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     
-    <!-- 1. Vista Formulario para el Documento (Independiente) -->
+    <!-- 1. Vista Formulario para el Documento -->
     <record id="view_fleet_sharepoint_document_form" model="ir.ui.view">
         <field name="name">fleet.sharepoint.document.form</field>
         <field name="model">fleet.sharepoint.document</field>
@@ -12,7 +12,6 @@
                         <group>
                             <field name="name" placeholder="Ej. Tarjeta de Propiedad"/>
                             <field name="filename" invisible="True"/>
-                            <!-- Aquí usamos widget="binary" y el validador ya sabe que filename pertenece a este modelo -->
                             <field name="upload_file" filename="filename" widget="binary"/>
                         </group>
                         <group>
@@ -25,14 +24,14 @@
         </field>
     </record>
 
-    <!-- 2. Vista Lista para el Documento -->
+    <!-- 2. Vista Lista Completa para el Documento (Soporta Checkboxes y Selección Masiva) -->
     <record id="view_fleet_sharepoint_document_list" model="ir.ui.view">
         <field name="name">fleet.sharepoint.document.list</field>
         <field name="model">fleet.sharepoint.document</field>
         <field name="arch" type="xml">
-            <!-- multi_edit="1" activa los checkboxes a la izquierda -->
-            <list string="Documentos" multi_edit="1">
+            <list string="Documentos SharePoint">
                 <field name="name"/>
+                <field name="vehicle_id"/>
                 <field name="filename" invisible="True"/>
                 <field name="mimetype" invisible="True"/>
                 <!-- Botón de Vista (Modal) -->
@@ -45,15 +44,35 @@
         </field>
     </record>
 
-    <!-- 3. Heredamos el formulario principal del Vehículo -->
+    <!-- 3. Acción de Ventana para el Smart Button -->
+    <record id="action_fleet_sharepoint_document_smart" model="ir.actions.act_window">
+        <field name="name">Documentos SharePoint</field>
+        <field name="res_model">fleet.sharepoint.document</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('vehicle_id', '=', active_id)]</field>
+        <field name="context">{'default_vehicle_id': active_id}</field>
+    </record>
+
+    <!-- 4. Heredamos la Ficha del Vehículo para insertar el Smart Button y mantener la Pestaña -->
     <record id="view_fleet_vehicle_form_inherit_sharepoint" model="ir.ui.view">
         <field name="name">fleet.vehicle.form.inherit.sharepoint</field>
         <field name="model">fleet.vehicle</field>
         <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
         <field name="arch" type="xml">
+            
+            <!-- Insertamos el Smart Button en la caja superior del vehículo -->
+            <xpath expr="//div[name='button_box']" position="inside">
+                <button name="%(action_fleet_sharepoint_document_smart)d" 
+                        type="action" 
+                        class="oe_stat_button" 
+                        icon="fa-folder-open">
+                    <field name="sharepoint_doc_count" widget="statinfo" string="Documentos SP"/>
+                </button>
+            </xpath>
+
+            <!-- Pestaña dentro del formulario del vehículo -->
             <xpath expr="//notebook" position="inside">
                 <page string="Documentos SharePoint" name="sharepoint_documents">
-                    <!-- Odoo usará automáticamente las vistas form y list declaradas arriba -->
                     <field name="sharepoint_document_ids"/>
                 </page>
             </xpath>
