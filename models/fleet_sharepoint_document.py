@@ -113,7 +113,9 @@ class FleetSharepointDocument(models.Model):
                 document_name = vals.get('name', 'Documento')
                 final_filename = f"{document_name}{ext}"
                 
-                vehicle_id = self.env['fleet.vehicle'].browse(vals.get('vehicle_id'))
+                # Buscamos el vehículo en los valores directos o en el contexto (Smart Button)
+                vid = vals.get('vehicle_id') or self.env.context.get('default_vehicle_id')
+                vehicle_id = self.env['fleet.vehicle'].browse(vid)
                 
                 # Pasamos el final_filename a SharePoint
                 sp_id, mime = self._upload_to_sharepoint(file_data, final_filename, vehicle_id)

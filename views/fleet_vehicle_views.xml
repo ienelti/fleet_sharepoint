@@ -6,7 +6,7 @@
         <field name="name">fleet.sharepoint.document.form</field>
         <field name="model">fleet.sharepoint.document</field>
         <field name="arch" type="xml">
-            <form string="Subir Documento">
+            <form string="Subir Documento" duplicate="0">
                 <sheet>
                     <group>
                         <group>
@@ -29,7 +29,7 @@
         <field name="name">fleet.sharepoint.document.list</field>
         <field name="model">fleet.sharepoint.document</field>
         <field name="arch" type="xml">
-            <list string="Documentos SharePoint">
+            <list string="Documentos SharePoint" multi_edit="1" duplicate="0">
                 <field name="name"/>
                 <field name="vehicle_id"/>
                 <field name="filename" invisible="True"/>
@@ -51,6 +51,23 @@
         <field name="view_mode">list,form</field>
         <field name="domain">[('vehicle_id', '=', active_id)]</field>
         <field name="context">{'default_vehicle_id': active_id}</field>
+    </record>
+
+    <!-- Acción de Servidor para Descargar ZIP -->
+    <record id="action_sharepoint_mass_download" model="ir.actions.server">
+        <field name="name">Descargar como ZIP</field>
+        <field name="model_id" ref="model_fleet_sharepoint_document"/>
+        <field name="binding_model_id" ref="model_fleet_sharepoint_document"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            # Redirigimos al controlador pasando los IDs seleccionados
+            action = {
+                'type': 'ir.actions.act_url',
+                'url': '/sharepoint/download_zip?ids=%s' % ','.join(map(str, records.ids)),
+                'target': 'self',
+            }
+        </field>
     </record>
 
     <!-- 4. Heredamos la Ficha del Vehículo para insertar el Smart Button y mantener la Pestaña -->
