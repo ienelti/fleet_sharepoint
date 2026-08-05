@@ -33,6 +33,7 @@
             <!-- multi_edit="1" activa los checkboxes a la izquierda -->
             <list string="Documentos" multi_edit="1">
                 <field name="name"/>
+                <field name="filename" invisible="True"/>
                 <field name="mimetype" invisible="True"/>
                 <!-- Botón de Vista (Modal) -->
                 <button name="action_view_document" type="object" string="Ver" icon="fa-eye" class="btn-primary"/>
