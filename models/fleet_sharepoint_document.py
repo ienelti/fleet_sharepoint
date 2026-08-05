@@ -19,12 +19,28 @@ class FleetSharepointDocument(models.Model):
     sp_item_id = fields.Char(string="ID de SharePoint", readonly=True)
     mimetype = fields.Char(string="Tipo Mime", readonly=True)
 
-    # 1. Restricción SQL: Evita que el mismo vehículo tenga dos documentos con el mismo 'name'
-    _sql_constraints = [
-        ('name_uniq_per_vehicle', 
-         'unique(vehicle_id, name)', 
-         'Ya existe un documento con este nombre para este vehículo. Por favor, asigne un nombre diferente.')
-    ]
+    # 1. Restricción: Evita que el mismo vehículo tenga dos documentos con el mismo 'name'
+    @api.constrains('name', 'vehicle_id')
+    def _check_unique_document_name(self):
+        for doc in self:
+            if not doc.name or not doc.vehicle_id:
+                continue
+                
+            # Buscamos si existe otro documento en el mismo vehículo con el mismo nombre
+            # Usamos '=ilike' para que sea insensible a mayúsculas/minúsculas 
+            # (ej. "SOAT" será tratado igual que "soat")
+            domain = [
+                ('vehicle_id', '=', doc.vehicle_id.id),
+                ('name', '=ilike', doc.name),
+                ('id', '!=', doc.id) # Excluimos el registro actual que se está guardando
+            ]
+            
+            # Si el contador encuentra al menos 1 coincidencia, bloqueamos el guardado
+            if self.env['fleet.sharepoint.document'].search_count(domain) > 0:
+                raise exceptions.ValidationError(
+                    f"El documento con el nombre '{doc.name}' ya existe para este vehículo.\n"
+                    "Por favor, asigne un nombre diferente para evitar sobreescribir el archivo en SharePoint."
+                )
 
     def _get_sharepoint_credentials(self):
         ICPSudo = self.env['ir.config_parameter'].sudo()
