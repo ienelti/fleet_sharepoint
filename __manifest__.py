@@ -12,6 +12,7 @@
         'security/ir.model.access.csv',
         'views/res_config_settings_views.xml',
         'views/fleet_vehicle_views.xml',
+        'views/fleet_sharepoint_wizard_views.xml',
     ],
     'installable': True,
     'application': False,
